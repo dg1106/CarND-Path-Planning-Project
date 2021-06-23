@@ -1,6 +1,5 @@
 # CarND-Path-Planning-Project
-Self-Driving Car Engineer Nanodegree Program
-   
+
 ### Simulator.
 You can download the Term3 Simulator which contains the Path Planning Project from the [releases tab (https://github.com/udacity/self-driving-car-sim/releases/tag/T3_v1.2).  
 
@@ -110,36 +109,52 @@ Please (do your best to) stick to [Google's C++ style guide](https://google.gith
 Note: regardless of the changes you make, your project must be buildable using
 cmake and make!
 
+---
+# About my project
+[//]: # (Image References)
 
-## Call for IDE Profiles Pull Requests
+[image1]: ./screenshot1.png "img1"
+[image2]: ./screenshot2.png "img2"
 
-Help your fellow students!
+## CRITERIA
+### 1) The car is able to drive at least 4.32 miles without incident.
+The screenshot image show my simulator had run over 8.5miles without incidents:
+![alt text][image1]
+![alt text][image2]
 
-We decided to create Makefiles with cmake to keep this project as platform
-agnostic as possible. Similarly, we omitted IDE profiles in order to ensure
-that students don't feel pressured to use one IDE or another.
+### 2) Speed Limit  
+No speed limit red message was seen.
+### 3) Max Acceleration and Jerk
+Max jerk red message was not seen.
+### 4) Collision
+Any collision was not happend.
+### 5) Changing lanes  
+Satisfied, The car is able to smoothly change lanes when it makes sense to do so, such as when behind a slower moving car and an adjacent lane is clear of other traffic.
+And the car stays in its lane most of the time but when it changes lane because of traffic or to return to the center lane.
 
-However! I'd love to help people get up and running with their IDEs of choice.
-If you've created a profile for an IDE that you think other students would
-appreciate, we'd love to have you add the requisite profile files and
-instructions to ide_profiles/. For example if you wanted to add a VS Code
-profile, you'd add:
+---
+## Reflection
+My path planning project consist of three parts:
 
-* /ide_profiles/vscode/.vscode
-* /ide_profiles/vscode/README.md
+1. Prediction  
+    - code line : #116 ~ #170
+    - This module deal with the telemetry and sensor fusion data which have information of the road environment car running.
+    - There are three cases which can depict the road status  
+      1) Is there a car in front of ego vehicle blocking the traffic
+      2) Is there a car to the left of ego vehicle making a lane change not safe.
+      3) Is there a car to the right of ego vehicle making a lane change not safe.
+    
 
-The README should explain what the profile does, how to take advantage of it,
-and how to install it.
+2. Behavior
+    - code line : #197 ~ #244
+    - This module decides what to do:  (#216 ~ #242)
+      1) If we have a car in front of ego vehicle, do we change lanes?
+      2) Do we speed up or slow down?
 
-Frankly, I've never been involved in a project with multiple IDE profiles
-before. I believe the best way to handle this would be to keep them out of the
-repo root to avoid clutter. My expectation is that most profiles will include
-instructions to copy files to a new location to get picked up by the IDE, but
-that's just a guess.
-
-One last note here: regardless of the IDE used, every submitted project must
-still be compilable with cmake and make./
-
-## How to write a README
-A well written README file can enhance your project and portfolio.  Develop your abilities to create professional README files by completing [this free course](https://www.udacity.com/course/writing-readmes--ud777).
-
+    
+3. Trajectory
+    - code line : #247 ~ #348
+    - This module does the calculation of the trajectory based on the speed and lane output from the behavior.
+    - First, the last two points of the previous trajectory (or the car position if there are no previous trajectory) are used in conjunction three points at a far distance to initialize the spline calculation.
+    - In order to ensure more continuity on the trajectory, the pass trajectory points are copied to the new trajectory. The rest of the points are calculated by evaluating the spline and transforming the output coordinates.
+    - The speed control flag decided on the behavior part ('speed_diff') is applied in this module for making a point of path.
