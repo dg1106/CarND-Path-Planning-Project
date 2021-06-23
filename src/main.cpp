@@ -54,7 +54,7 @@ int main() {
   // start in lane 1
   int lane = 1;
 
-  double ref_vel = 49.5; //mph
+  double ref_vel = 0.0; //mph
 
   h.onMessage([&map_waypoints_x,&map_waypoints_y,&map_waypoints_s,
                &map_waypoints_dx,&map_waypoints_dy,&ref_vel,&lane]
@@ -111,6 +111,8 @@ int main() {
             car_s = end_path_s;
           }
           
+          bool too_close = false;
+          
           // find ref_v to use
           for (int i = 0; i < sensor_fusion.size(); i++)
           {
@@ -124,19 +126,31 @@ int main() {
               double check_car_s = sensor_fusion[i][5];
               
               check_car_s += ((double)prev_size*.02*check_speed); // if using previous points can project s value out
-              
               // check s values greater than mine and s gap
               if ((check_car_s > car_s) && ((check_car_s - car_s) < 30))
               {
                 // Do some logic here, lower reference velocity so we don't crash into the car in front of us,
                 // could also set flag to try to change lanes.
-                ref_vel = 29.5; //mph
-                //too_close = ture;
+                //ref_vel = 29.5; //mph
+                too_close = true;
               }
               
             }
           }
           
+          // accelerating decelerating
+          if (too_close)
+          {
+            ref_vel -= .224;
+          }
+          else if (ref_vel < 49.5)
+          {
+            ref_vel += .224;
+          }
+          else
+          {
+            ; //do nothing
+          }
 
           // if previous size is almost empty, use the car as starting reference
           if (prev_size < 2)
