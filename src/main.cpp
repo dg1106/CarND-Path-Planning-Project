@@ -106,6 +106,37 @@ int main() {
           double ref_y = car_y;
           double ref_yaw = deg2rad(car_yaw);
 
+          if (prev_size > 0)
+          {
+            car_s = end_path_s;
+          }
+          
+          // find ref_v to use
+          for (int i = 0; i < sensor_fusion.size(); i++)
+          {
+            // car is in my lane
+            float d = sensor_fusion[i][6];
+            if (d < (2+4*lane+2) && d > (2+4*lane-2))
+            {
+              double vx = sensor_fusion[i][3];
+              double vy = sensor_fusion[i][4];
+              double check_speed = sqrt(vx*vx+vy*vy);
+              double check_car_s = sensor_fusion[i][5];
+              
+              check_car_s += ((double)prev_size*.02*check_speed); // if using previous points can project s value out
+              
+              // check s values greater than mine and s gap
+              if ((check_car_s > car_s) && ((check_car_s - car_s) < 30))
+              {
+                // Do some logic here, lower reference velocity so we don't crash into the car in front of us,
+                // could also set flag to try to change lanes.
+                ref_vel = 29.5; //mph
+                //too_close = ture;
+              }
+              
+            }
+          }
+          
 
           // if previous size is almost empty, use the car as starting reference
           if (prev_size < 2)
